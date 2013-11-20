@@ -97,6 +97,7 @@ class logstash(
   $multi_instance = true,
   $initfiles      = undef,
   $defaultsfiles  = undef,
+  $patternfiles   = [],
   $logstash_user  = $logstash::params::logstash_user,
   $logstash_group = $logstash::params::logstash_group,
   $configdir      = $logstash::params::configdir,
@@ -144,6 +145,9 @@ class logstash(
 
   # configuration
   class { 'logstash::config': }
+  
+  # pattern(s)
+  class { 'logstash::pattern': }
 
   # service(s)
   class { 'logstash::service': }
@@ -165,10 +169,12 @@ class logstash(
     Anchor['logstash::begin']
     -> Class['logstash::package']
     -> Class['logstash::config']
+    -> Class['logstash::pattern']
 
     # we need the software and a working configuration before running a service
     Class['logstash::package'] -> Class['logstash::service']
     Class['logstash::config']  -> Class['logstash::service']
+    Class['logstash::pattern'] -> Class['logstash::service']
 
     Class['logstash::service'] -> Anchor['logstash::end']
 
